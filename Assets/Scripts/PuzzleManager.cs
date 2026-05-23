@@ -72,7 +72,7 @@ public class PuzzleManager : MonoBehaviour
         currentMoveIndex = 1;
         boardManager.ClearHighlights();
         boardManager.HighlightMove(m, new Color(1f, 0.9f, 0f, 0.6f));
-        boardManager.ExecuteMove(m);
+        boardManager.ExecuteMove(m,true);
     }
 
     public void TryMove(string uci)
@@ -112,7 +112,7 @@ public class PuzzleManager : MonoBehaviour
     {
         boardManager.ClearHighlights();
         boardManager.HighlightMove(pendingComputerMove, new Color(1f, 0.9f, 0f, 0.6f));
-        boardManager.ExecuteMove(pendingComputerMove);
+        boardManager.ExecuteMove(pendingComputerMove, true);
 
         if (currentMoveIndex >= currentPuzzle.solution.Length)
         {

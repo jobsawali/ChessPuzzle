@@ -1,5 +1,6 @@
-using UnityEngine;
 using System.Collections.Generic;
+using System.ComponentModel;
+using UnityEngine;
 
 public class BoardManager : MonoBehaviour
 {
@@ -9,6 +10,13 @@ public class BoardManager : MonoBehaviour
     public Sprite bKing, bQueen, bRook, bBishop, bKnight, bPawn;
     [Header("Sprites - Scacchiera")]
     public Sprite lightSquareSprite, darkSquareSprite;
+
+    [Header("Suoni")]
+    public AudioClip moveSound;
+    public AudioClip moveSoundOpponent;
+    public AudioClip captureSound;
+
+    private AudioSource audioSource;
 
     public float squareSize = 1f;
     public PuzzleManager puzzleManager;
@@ -28,7 +36,11 @@ public class BoardManager : MonoBehaviour
     private ChessLogic chess = new ChessLogic();
     private int selectedCol = -1, selectedRow = -1;
 
-    void Start() { CreateBoard(); }
+    void Start() {
+
+        audioSource = GetComponent<AudioSource>();
+        CreateBoard();
+    }
 
     void CreateBoard()
     {
@@ -290,10 +302,22 @@ public class BoardManager : MonoBehaviour
         ClearHighlights();
     }
 
-    public void ExecuteMove(string uci)
+    public void ExecuteMove(string uci, bool isOpponent = false)
     {
+        int tc = uci[2] - 'a';
+        int tr = uci[3] - '1';
+
+        bool isCapture = chess.board[tc, tr].type != ChessLogic.PieceType.None;
+
         chess.MakeMove(uci);
         SpawnPieces();
+
+        if (isCapture)
+            audioSource.PlayOneShot(captureSound);
+        else if (isOpponent)
+            audioSource.PlayOneShot(moveSoundOpponent);
+        else
+            audioSource.PlayOneShot(moveSound);
     }
 
     Sprite GetSprite(ChessLogic.Piece p)
