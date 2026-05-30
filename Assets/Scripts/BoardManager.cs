@@ -15,6 +15,7 @@ public class BoardManager : MonoBehaviour
     public AudioClip moveSound;
     public AudioClip moveSoundOpponent;
     public AudioClip captureSound;
+    public AudioClip illegalSound;
 
     private AudioSource audioSource;
 
@@ -192,6 +193,7 @@ public class BoardManager : MonoBehaviour
             else
             {
                 ClearSelectionHighlights();
+                audioSource.PlayOneShot(illegalSound);
                 Debug.Log("Mossa non permessa dalle regole.");
             }
 

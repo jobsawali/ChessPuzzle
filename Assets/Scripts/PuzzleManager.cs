@@ -27,6 +27,8 @@ public class PuzzleManager : MonoBehaviour
     private int currentPuzzleIndex = 0;
     private string pendingComputerMove;
 
+    public UIManager uiManager;
+
     void Start()
     {
         LoadPuzzles();
@@ -95,17 +97,25 @@ public class PuzzleManager : MonoBehaviour
             }
             else
             {
+                if (uiManager != null)
+                    uiManager.PuzzleSolved();
                 Invoke(nameof(LoadNextPuzzle), 1.2f);
             }
         }
         else
-        {
-            
-            boardManager.ClearHighlights();
-            boardManager.ExecuteMove(uci);
-            boardManager.HighlightMove(uci, new Color(1f, 0f, 0f, 0.6f));
-            Invoke(nameof(ResetPuzzleAfterError), 0.8f);
-        }
+{
+    boardManager.ClearHighlights();
+    boardManager.ExecuteMove(uci);
+    boardManager.HighlightMove(uci, new Color(1f, 0f, 0f, 0.6f));
+    
+    if (uiManager != null)
+        uiManager.LoseLife();
+    
+    if (uiManager != null && uiManager.IsGameOver())
+        return;
+    
+    Invoke(nameof(ResetPuzzleAfterError), 0.8f);
+}
     }
 
     void ExecuteResponseMove()
