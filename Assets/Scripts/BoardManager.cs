@@ -186,7 +186,11 @@ public class BoardManager : MonoBehaviour
             if (isLegal)
             {
                 string uciMove = $"{(char)('a' + selectedCol)}{selectedRow + 1}{(char)('a' + col)}{row + 1}";
-            
+
+                ChessLogic.Piece movingPiece = chess.board[selectedCol, selectedRow];
+                if (movingPiece.type == ChessLogic.PieceType.Pawn && (row == 7 || row == 0))
+                    uciMove += "q";
+
                 ClearSelectionHighlights();
                 puzzleManager.TryMove(uciMove);
             }

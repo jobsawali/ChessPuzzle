@@ -24,12 +24,14 @@ public class ChessLogic
         for (int row = 0; row < 8; row++)
         {
             int col = 0;
-            foreach (char c in rows[7 - row])
+            int targetRow = 7 - row; 
+
+            foreach (char c in rows[row])
             {
                 if (char.IsDigit(c)) col += (int)char.GetNumericValue(c);
                 else
                 {
-                    board[col, row] = CharToPiece(c);
+                    board[col, targetRow] = CharToPiece(c);
                     col++;
                 }
             }
