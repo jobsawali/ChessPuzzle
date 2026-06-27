@@ -98,7 +98,7 @@ public class PuzzleManager : MonoBehaviour
         
         if (difficultyText != null)
         {
-            difficultyText.text = $"Difficolty: {currentPuzzle.difficulty}";
+            difficultyText.text = $"Difficulty: {currentPuzzle.difficulty}";
             
         }
 
