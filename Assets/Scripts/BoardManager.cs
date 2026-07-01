@@ -19,6 +19,11 @@ public class BoardManager : MonoBehaviour
 
     private AudioSource audioSource;
 
+    [Header("Touch Cursor")]
+    public Sprite handGrabSprite;
+    private GameObject handCursor;
+
+
     public float squareSize = 1f;
     public PuzzleManager puzzleManager;
 
@@ -36,6 +41,11 @@ public class BoardManager : MonoBehaviour
 
     private ChessLogic chess = new ChessLogic();
     private int selectedCol = -1, selectedRow = -1;
+    // Drag & Drop
+    private bool isDragging = false;
+    private int dragCol = -1, dragRow = -1;
+    private GameObject dragGhost = null;
+    private GameObject dragCursor = null;
 
     void Start() {
 
@@ -70,45 +80,193 @@ public class BoardManager : MonoBehaviour
     void Update()
     {
         Vector2 screenPos = Vector2.zero;
-        bool pressed = false;
+        bool down = false, move = false, up = false;
 
-        if (UnityEngine.InputSystem.Mouse.current != null &&
-            UnityEngine.InputSystem.Mouse.current.leftButton.wasPressedThisFrame)
+        if (UnityEngine.InputSystem.Mouse.current != null)
         {
-            screenPos = UnityEngine.InputSystem.Mouse.current.position.ReadValue();
-            pressed = true;
+            var mouse = UnityEngine.InputSystem.Mouse.current;
+            screenPos = mouse.position.ReadValue();
+            down = mouse.leftButton.wasPressedThisFrame;
+            move = mouse.leftButton.isPressed;
+            up = mouse.leftButton.wasReleasedThisFrame;
         }
 
-        if (UnityEngine.InputSystem.Touchscreen.current != null &&
-            UnityEngine.InputSystem.Touchscreen.current.primaryTouch.press.wasPressedThisFrame)
+        if (UnityEngine.InputSystem.Touchscreen.current != null)
         {
-            screenPos = UnityEngine.InputSystem.Touchscreen.current.primaryTouch.position.ReadValue();
-            pressed = true;
-        }
-
-        if (!pressed) return;
-
-        Vector2 worldPos = Camera.main.ScreenToWorldPoint(screenPos);
-        RaycastHit2D hit = Physics2D.Raycast(worldPos, Vector2.zero);
-
-        
-        if (hit.collider != null)
-        {
-            for (int c = 0; c < 8; c++)
+            var touch = UnityEngine.InputSystem.Touchscreen.current.primaryTouch;
+            if (touch.press.wasPressedThisFrame || touch.press.isPressed || touch.press.wasReleasedThisFrame)
             {
-                for (int r = 0; r < 8; r++)
-                {
-                    if (hit.collider.gameObject == squares[c, r])
-                    {
-                        
-                        int logicCol = blackAtBottom ? 7 - c : c;
-                        int logicRow = blackAtBottom ? 7 - r : r;
-                        OnSquareClicked(logicCol, logicRow);
-                        return;
-                    }
-                }
+                screenPos = touch.position.ReadValue();
+                down = touch.press.wasPressedThisFrame;
+                move = touch.press.isPressed;
+                up = touch.press.wasReleasedThisFrame;
             }
         }
+
+        if (down) OnPointerDown(screenPos);
+        else if (move && isDragging) OnPointerMove(screenPos);
+        else if (up) OnPointerUp(screenPos);
+    }
+
+    void TryApplyMove(int toCol, int toRow)
+    {
+        bool isLegal = false;
+        var legalMoves = chess.GetLegalMovesFiltered(selectedCol, selectedRow);
+        foreach (var m in legalMoves)
+            if (m.col == toCol && m.row == toRow) { isLegal = true; break; }
+
+        if (isLegal)
+        {
+            string uciMove = $"{(char)('a' + selectedCol)}{selectedRow + 1}{(char)('a' + toCol)}{toRow + 1}";
+            ChessLogic.Piece movingPiece = chess.board[selectedCol, selectedRow];
+            if (movingPiece.type == ChessLogic.PieceType.Pawn && (toRow == 7 || toRow == 0))
+                uciMove += "q";
+
+            ClearSelectionHighlights();
+            puzzleManager.TryMove(uciMove);
+        }
+        else
+        {
+            ClearSelectionHighlights();
+            if (audioSource != null && illegalSound != null)
+                if (PlayerPrefs.GetInt("SFX", 1) == 1)
+                    audioSource.PlayOneShot(illegalSound);
+        }
+
+        selectedCol = -1;
+        selectedRow = -1;
+        isDragging = false;
+    }
+
+    void OnPointerDown(Vector2 screenPos)
+    {
+        var (col, row, hit) = GetSquareAt(screenPos);
+        if (!hit) return;
+
+        ChessLogic.Piece piece = chess.board[col, row];
+
+        if (piece.type != ChessLogic.PieceType.None && piece.color == chess.currentTurn)
+        {
+            
+            isDragging = true;
+            dragCol = col;
+            dragRow = row;
+            selectedCol = col;
+            selectedRow = row;
+
+            ClearSelectionHighlights();
+            AddSelectionHighlight(col, row, new Color(0.443f, 0.894f, 0.918f, 1f));
+            foreach (var m in chess.GetLegalMovesFiltered(col, row))
+                AddSelectionHighlight(m.col, m.row, new Color(1f, 1f, 1f, 0.1f));
+
+            Vector2 worldPos = Camera.main.ScreenToWorldPoint(screenPos);
+            CreateDragGhost(col, row, worldPos);
+        }
+        else if (selectedCol != -1 && !isDragging)
+        {
+            TryApplyMove(col, row);
+        }
+    }
+
+    void OnPointerMove(Vector2 screenPos)
+    {
+        if (!isDragging || dragGhost == null) return;
+        Vector2 worldPos = Camera.main.ScreenToWorldPoint(screenPos);
+        dragGhost.transform.position = new Vector3(worldPos.x, worldPos.y, -0.5f);
+        if (handCursor != null)
+            handCursor.transform.position = new Vector3(worldPos.x + 0.4f, worldPos.y + 0.4f, -0.6f);
+    }
+
+    void OnPointerUp(Vector2 screenPos)
+    {
+        if (!isDragging) return;
+
+        var (col, row, hit) = GetSquareAt(screenPos);
+
+        
+        int fromCol = dragCol;
+        int fromRow = dragRow;
+
+        DestroyDragGhost();
+
+        if (hit && (col != fromCol || row != fromRow))
+        {
+            
+            selectedCol = fromCol;
+            selectedRow = fromRow;
+            TryApplyMove(col, row);
+        }
+        else
+        {
+            
+            selectedCol = fromCol;
+            selectedRow = fromRow;
+            isDragging = false;
+        }
+    }
+
+    void CreateDragGhost(int col, int row, Vector2 worldPos)
+    {
+        if (pieces[col, row] != null)
+            pieces[col, row].GetComponent<SpriteRenderer>().enabled = false;
+
+        dragGhost = new GameObject("DragGhost");
+        SpriteRenderer sr = dragGhost.AddComponent<SpriteRenderer>();
+        sr.sprite = GetSprite(chess.board[col, row]);
+        sr.sortingOrder = 10;
+        sr.color = new Color(1f, 1f, 1f, 0.92f);
+        dragGhost.transform.position = new Vector3(worldPos.x, worldPos.y, -0.5f);
+        dragGhost.transform.localScale = Vector3.one * 1.1f;
+
+        ChessLogic.Piece piece = chess.board[col, row];
+        bool isWhitePiece = piece.color == ChessLogic.PieceColor.White;
+
+        if (handGrabSprite != null)
+        {
+            handCursor = new GameObject("HandCursor");
+            SpriteRenderer hsr = handCursor.AddComponent<SpriteRenderer>();
+            hsr.sprite = handGrabSprite;
+            hsr.sortingOrder = 11;
+            handCursor.transform.localScale = Vector3.one * 1.5f;
+            handCursor.transform.position = new Vector3(worldPos.x + 0.4f, worldPos.y + 0.4f, -0.6f);
+        }
+
+
+    }
+
+    void DestroyDragGhost()
+    {
+        if (dragCol >= 0 && dragCol < 8 && dragRow >= 0 && dragRow < 8)
+            if (pieces[dragCol, dragRow] != null)
+            {
+                var sr = pieces[dragCol, dragRow].GetComponent<SpriteRenderer>();
+                if (sr != null) sr.enabled = true;
+            }
+
+        if (dragGhost != null) { Destroy(dragGhost); dragGhost = null; }
+        if (dragCursor != null) { Destroy(dragCursor); dragCursor = null; }
+
+        isDragging = false;
+        dragCol = -1;
+        dragRow = -1;
+
+        if (handCursor != null) { Destroy(handCursor); handCursor = null; }
+    }
+
+    (int col, int row, bool hit) GetSquareAt(Vector2 screenPos)
+    {
+        Vector2 worldPos = Camera.main.ScreenToWorldPoint(screenPos);
+        RaycastHit2D hit = Physics2D.Raycast(worldPos, Vector2.zero);
+        if (hit.collider != null)
+            for (int c = 0; c < 8; c++)
+                for (int r = 0; r < 8; r++)
+                    if (hit.collider.gameObject == squares[c, r])
+                    {
+                        int logicCol = blackAtBottom ? 7 - c : c;
+                        int logicRow = blackAtBottom ? 7 - r : r;
+                        return (logicCol, logicRow, true);
+                    }
+        return (0, 0, false);
     }
 
     void CreateCoordinates()
@@ -160,49 +318,6 @@ public class BoardManager : MonoBehaviour
         rt.sizeDelta = new Vector2(1f, 1f);
 
         coordinates.Add(obj);
-    }
-
-    void OnSquareClicked(int col, int row)
-    {
-        ChessLogic.Piece clickedPiece = chess.board[col, row];
-
-        if (clickedPiece.type != ChessLogic.PieceType.None && clickedPiece.color == chess.currentTurn)
-        {
-            
-            ClearSelectionHighlights();
-            selectedCol = col; selectedRow = row;
-
-            AddSelectionHighlight(col, row, new Color(1f, 1f, 0f, 0.25f));
-            foreach (var move in chess.GetLegalMoves(col, row))
-                AddSelectionHighlight(move.col, move.row, new Color(1f, 1f, 1f, 0.1f));
-        }
-        else if (selectedCol != -1)
-        {
-            bool isLegal = false;
-            var legalMoves = chess.GetLegalMoves(selectedCol, selectedRow);
-            foreach (var m in legalMoves)
-                if (m.col == col && m.row == row) { isLegal = true; break; }
-
-            if (isLegal)
-            {
-                string uciMove = $"{(char)('a' + selectedCol)}{selectedRow + 1}{(char)('a' + col)}{row + 1}";
-
-                ChessLogic.Piece movingPiece = chess.board[selectedCol, selectedRow];
-                if (movingPiece.type == ChessLogic.PieceType.Pawn && (row == 7 || row == 0))
-                    uciMove += "q";
-
-                ClearSelectionHighlights();
-                puzzleManager.TryMove(uciMove);
-            }
-            else
-            {
-                ClearSelectionHighlights();
-                audioSource.PlayOneShot(illegalSound);
-                Debug.Log("Mossa non permessa dalle regole.");
-            }
-
-            selectedCol = -1; selectedRow = -1;
-        }
     }
 
     
@@ -318,12 +433,15 @@ public class BoardManager : MonoBehaviour
         chess.MakeMove(uci);
         SpawnPieces();
 
-        if (isCapture)
-            audioSource.PlayOneShot(captureSound);
-        else if (isOpponent)
-            audioSource.PlayOneShot(moveSoundOpponent);
-        else
-            audioSource.PlayOneShot(moveSound);
+        if (PlayerPrefs.GetInt("SFX", 1) == 1)
+        {
+            if (isCapture)
+                audioSource.PlayOneShot(captureSound);
+            else if (isOpponent)
+                audioSource.PlayOneShot(moveSoundOpponent);
+            else
+                audioSource.PlayOneShot(moveSound);
+        }
     }
 
     Sprite GetSprite(ChessLogic.Piece p)

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
@@ -31,22 +32,48 @@ public class UIManager : MonoBehaviour
     public Sprite historyWrong;       
     public int maxHistoryItems = 13;
 
+    [Header("Game Over Panel")]
+    public GameObject gameOverPanel;
+    public TMPro.TextMeshProUGUI finalScoreText;
+    public Button restartButton;
+    public Button menuButton;
+
+    public LeaderboardManager leaderboardManager;
+
+
+
+    [Header("Riferimenti")]
+    public GameObject boardObject;
+
+
+    private const string MENU_SCENE = "MainMenu";
+    private const string GAME_SCENE = "GameScene";
+
     private List<Image> historyItems = new List<Image>();
+    private int totalSolved = 0;
 
 
     void Start()
     {
         audioSource = gameObject.AddComponent<AudioSource>();
+        if (gameOverPanel != null)
+            gameOverPanel.SetActive(false);
+        if (restartButton != null)
+            restartButton.onClick.AddListener(OnRestart);
+        if (menuButton != null)
+            menuButton.onClick.AddListener(OnGoToMenu);
     }
 
     public void PuzzleSolved()
     {
-        audioSource.PlayOneShot(successSound);
+        if (PlayerPrefs.GetInt("SFX", 1) == 1)
+            audioSource.PlayOneShot(successSound);
     }
 
     public void LoseLife()
     {
-        audioSource.PlayOneShot(incorrectSound);
+        if (PlayerPrefs.GetInt("SFX", 1) == 1)
+            audioSource.PlayOneShot(incorrectSound);
         livesLost++;
 
         if (livesLost == 1)
@@ -126,7 +153,7 @@ public class UIManager : MonoBehaviour
         vlg.childForceExpandWidth = false;
         vlg.childForceExpandHeight = false;
 
-        // Quadratino
+        
         GameObject item = new GameObject("HistoryItem");
         item.transform.SetParent(container.transform);
 
@@ -154,13 +181,48 @@ public class UIManager : MonoBehaviour
     }
 
 
-    void GameOver()
+    private void GameOver()
     {
-        Debug.Log("GAME OVER!");
+        gameOverPanel.SetActive(true);
+        if (finalScoreText != null)
+            finalScoreText.text = $"Puzzles solved: {totalSolved}";
+        if (leaderboardManager != null)
+            leaderboardManager.Show(totalSolved);
     }
 
     public bool IsGameOver()
     {
         return livesLost >= 3;
     }
+
+    private void OnRestart()
+    {
+        SceneManager.LoadScene(GAME_SCENE);
+    }
+
+    private void OnGoToMenu()
+    {
+        SceneManager.LoadScene(MENU_SCENE);
+    }
+
+    public void RegisterSolvedPuzzle(int count)
+    {
+        totalSolved = count;
+    }
+
+    public void HideTopBar()
+    {
+        topBar.gameObject.SetActive(false);
+        colorIndicator.gameObject.SetActive(false);
+        whoToMoveText.gameObject.SetActive(false);
+    }
+
+    public void ShowTopBar()
+    {
+        topBar.gameObject.SetActive(true);
+        colorIndicator.gameObject.SetActive(true);
+        whoToMoveText.gameObject.SetActive(true);
+    }
+
+
 }

@@ -143,4 +143,54 @@ public class ChessLogic
     }
 
     private bool InBounds(int c, int r) => c >= 0 && c < 8 && r >= 0 && r < 8;
+
+    public bool IsKingInCheck(PieceColor color)
+    {
+       
+        int kingCol = -1, kingRow = -1;
+        for (int c = 0; c < 8; c++)
+            for (int r = 0; r < 8; r++)
+                if (board[c, r].type == PieceType.King && board[c, r].color == color)
+                { kingCol = c; kingRow = r; }
+
+        if (kingCol == -1) return false;
+
+        
+        PieceColor opponent = color == PieceColor.White ? PieceColor.Black : PieceColor.White;
+        for (int c = 0; c < 8; c++)
+            for (int r = 0; r < 8; r++)
+                if (board[c, r].color == opponent)
+                    foreach (var move in GetLegalMoves(c, r))
+                        if (move.col == kingCol && move.row == kingRow)
+                            return true;
+
+        return false;
+    }
+
+    public List<(int col, int row)> GetLegalMovesFiltered(int fromCol, int fromRow)
+    {
+        List<(int, int)> legalMoves = new List<(int, int)>();
+        Piece piece = board[fromCol, fromRow];
+        if (piece.type == PieceType.None) return legalMoves;
+
+        foreach (var move in GetLegalMoves(fromCol, fromRow))
+        {
+            
+            Piece backup = board[move.col, move.row];
+            board[move.col, move.row] = piece;
+            board[fromCol, fromRow] = new Piece(PieceType.None, PieceColor.None);
+
+            
+            bool inCheck = IsKingInCheck(piece.color);
+
+           
+            board[fromCol, fromRow] = piece;
+            board[move.col, move.row] = backup;
+
+            if (!inCheck)
+                legalMoves.Add(move);
+        }
+
+        return legalMoves;
+    }
 }

@@ -31,6 +31,7 @@ public class PuzzleManager : MonoBehaviour
     private int currentMoveIndex = 0;
     private int currentPuzzleIndex = 0;
     private string pendingComputerMove;
+    public bool isCountdownActive = true;
 
     [Header("UI Contatore")]
     [SerializeField] private TextMeshProUGUI totalSolvedText;
@@ -44,15 +45,34 @@ public class PuzzleManager : MonoBehaviour
     public Button backButton;
     public Button forwardButton;
 
+
+    [Header("Countdown")]
+    public CountdownManager countdownManager;
+
     void Start()
     {
-
         totalSolvedCount = 0;
         UpdateCounterUI();
-
         LoadPuzzles();
-        Invoke(nameof(LoadNextPuzzle), 0.2f);
+        if (difficultyText != null)
+            difficultyText.text = "";
+        if (uiManager != null)
+            uiManager.whoToMoveText.gameObject.SetActive(false);
+        if (uiManager != null)
+            uiManager.HideTopBar();
 
+        if (countdownManager != null)
+            countdownManager.StartCountdown();
+        else
+        {
+            isCountdownActive = false;
+            Invoke(nameof(LoadNextPuzzle), 0.2f);
+        }
+    }
+
+    void StartCountdown()
+    {
+        countdownManager.StartCountdown();
     }
 
 
@@ -124,6 +144,7 @@ public class PuzzleManager : MonoBehaviour
 
     void ExecuteInitialMove()
     {
+        if (isCountdownActive) return;
         string m = currentPuzzle.solution[0];
         currentMoveIndex = 1;
         boardManager.ClearHighlights();
@@ -137,6 +158,7 @@ public class PuzzleManager : MonoBehaviour
 
     public void TryMove(string uci)
     {
+        if (isCountdownActive) return;
         if (historyPointer < currentMoveIndex)
         {
             Debug.LogWarning("Input Bloccato: Non puoi fare mosse mentre navighi nella cronologia.");
@@ -164,7 +186,6 @@ public class PuzzleManager : MonoBehaviour
             else
             {
                 OnPuzzleSolvedSuccess();
-
                 if (uiManager != null)
                 {
                     uiManager.PuzzleSolved();
@@ -206,7 +227,12 @@ public class PuzzleManager : MonoBehaviour
         if (currentMoveIndex >= currentPuzzle.solution.Length)
         {
             OnPuzzleSolvedSuccess();
-
+            if (uiManager != null)
+            {
+                uiManager.PuzzleSolved();
+                uiManager.ShowPuzzleCorrect();
+                uiManager.AddHistoryItem(true, currentPuzzle.difficulty);
+            }
             Invoke(nameof(LoadNextPuzzle), 1.2f);
         }
     }
@@ -282,6 +308,8 @@ public class PuzzleManager : MonoBehaviour
     {
         totalSolvedCount++;
         UpdateCounterUI();
+        if (uiManager != null)
+            uiManager.RegisterSolvedPuzzle(totalSolvedCount);
     }
 
     private void UpdateCounterUI()

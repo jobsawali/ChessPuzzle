@@ -11,28 +11,50 @@ public class MainMenuManager : MonoBehaviour
     public Button settingsButton;
     public Button quitButton;
 
-    [Header("Pannello impostazioni")]
-    public GameObject settingsPanel;
-    public Button closeSettingsBtn;
+
 
     [Header("High Score")]
     public TextMeshProUGUI highScoreText;
 
-    
+    [Header("Pannelli")]
+    public GameObject mainMenuPanel;
+    public GameObject optionsMenuPanel;
+    public Button backButton;
+    public GameObject usernamePanel;
+
+    [Header("Options")]
+    public UnityEngine.UI.Slider musicSlider;
+    public UnityEngine.UI.Toggle sfxToggle;
+
+
+
     private const string HIGH_SCORE_KEY = "HighScore";
 
     private const string GAME_SCENE = "GameScene";
 
     void Start()
     {
-       
-        if (playButton     != null) playButton.onClick.AddListener(OnPlay);
-        if (settingsButton != null) settingsButton.onClick.AddListener(OnOpenSettings);
-        if (closeSettingsBtn != null) closeSettingsBtn.onClick.AddListener(OnCloseSettings);
-        if (quitButton     != null) quitButton.onClick.AddListener(OnQuit);
+        mainMenuPanel.SetActive(true);
+        optionsMenuPanel.SetActive(false);
 
-        
-        if (settingsPanel != null) settingsPanel.SetActive(false);
+        if (playButton != null) playButton.onClick.AddListener(OnPlay);
+        if (settingsButton != null) settingsButton.onClick.AddListener(OnOpenSettings);
+        if (quitButton != null) quitButton.onClick.AddListener(OnQuit);
+        if (backButton != null) backButton.onClick.AddListener(OnBack);
+
+        if (musicSlider != null)
+        {
+            musicSlider.value = PlayerPrefs.GetFloat("Music", 1f);
+            musicSlider.onValueChanged.AddListener(OnMusicChanged);
+        }
+
+        if (sfxToggle != null)
+        {
+            sfxToggle.isOn = PlayerPrefs.GetInt("SFX", 1) == 1;
+            sfxToggle.onValueChanged.AddListener(OnSFXChanged);
+        }
+
+   
 
         UpdateHighScoreUI();
     }
@@ -40,17 +62,14 @@ public class MainMenuManager : MonoBehaviour
 
     void OnPlay()
     {
-        SceneManager.LoadScene(GAME_SCENE);
+        usernamePanel.SetActive(true);
+        mainMenuPanel.SetActive(false);
     }
 
     void OnOpenSettings()
     {
-        if (settingsPanel != null) settingsPanel.SetActive(true);
-    }
-
-    void OnCloseSettings()
-    {
-        if (settingsPanel != null) settingsPanel.SetActive(false);
+        mainMenuPanel.SetActive(false);
+        optionsMenuPanel.SetActive(true);
     }
 
     void OnQuit()
@@ -61,10 +80,31 @@ public class MainMenuManager : MonoBehaviour
         Application.Quit();
 #endif
     }
+    void OnBack()
+    {
+        optionsMenuPanel.SetActive(false);
+        mainMenuPanel.SetActive(true);
+    }
+
+   
+    void OnMusicChanged(float value)
+    {
+        PlayerPrefs.SetFloat("Music", value);
+        PlayerPrefs.Save();
+     
+    }
+
+    void OnSFXChanged(bool value)
+    {
+        PlayerPrefs.SetInt("SFX", value ? 1 : 0);
+        PlayerPrefs.Save();
+    }
 
 
 
- 
+
+
+
     public static void TrySaveHighScore(int score)
     {
         int current = PlayerPrefs.GetInt(HIGH_SCORE_KEY, 0);
