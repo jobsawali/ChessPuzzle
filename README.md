@@ -18,8 +18,8 @@ For each wrong move a life is lost. The game ends when all 3 lives are lost.
 - Game Over screen with leaderboard
 
 ## Screenshots
-![Main Menu](screenshots/menu.png)
-![Gameplay](screenshots/gameplay.png)
+<img src="screenshots/menu.png" width="300">
+<img src="screenshots/gameplay.png" width="300">
 
 ## Built With
 - Unity
