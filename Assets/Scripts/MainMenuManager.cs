@@ -26,6 +26,9 @@ public class MainMenuManager : MonoBehaviour
     public UnityEngine.UI.Slider musicSlider;
     public UnityEngine.UI.Toggle sfxToggle;
 
+    [Header("Music")]
+    public AudioSource musicSource;
+
 
 
     private const string HIGH_SCORE_KEY = "HighScore";
@@ -54,7 +57,10 @@ public class MainMenuManager : MonoBehaviour
             sfxToggle.onValueChanged.AddListener(OnSFXChanged);
         }
 
-   
+        if (musicSource != null)
+            musicSource.volume = PlayerPrefs.GetFloat("Music", 1f);
+
+
 
         UpdateHighScoreUI();
     }
@@ -86,12 +92,13 @@ public class MainMenuManager : MonoBehaviour
         mainMenuPanel.SetActive(true);
     }
 
-   
+
     void OnMusicChanged(float value)
     {
         PlayerPrefs.SetFloat("Music", value);
         PlayerPrefs.Save();
-     
+        if (musicSource != null)
+            musicSource.volume = value;
     }
 
     void OnSFXChanged(bool value)

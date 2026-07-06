@@ -416,7 +416,6 @@ GameObject:
   m_Component:
   - component: {fileID: 111026749}
   - component: {fileID: 111026748}
-  - component: {fileID: 111026750}
   m_Layer: 0
   m_Name: MusicManager
   m_TagString: Untagged
@@ -435,7 +434,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 8300000, guid: ac704bd9745f1e24c90ec9a265e802ca, type: 3}
+  m_Resource: {fileID: 8300000, guid: 5a310ab012d57d240855544698d438c6, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 0.3
   m_Pitch: 1
@@ -536,18 +535,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &111026750
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 111026747}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 160705f841ae7964cbeff450bc16912c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MusicManager
 --- !u!1 &113804984
 GameObject:
   m_ObjectHideFlags: 0
@@ -2375,7 +2362,6 @@ MonoBehaviour:
   usernamePanel: {fileID: 1421286823}
   musicSlider: {fileID: 859694886}
   sfxToggle: {fileID: 1807870481}
-  musicSource: {fileID: 111026748}
 --- !u!1 &923724062
 GameObject:
   m_ObjectHideFlags: 0

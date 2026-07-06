@@ -6,8 +6,8 @@ using UnityEngine.UI;
 public class ChessBackground : MonoBehaviour
 {
     [Header("Colori")]
-    public Color darkColor  = new Color(0.118f, 0.071f, 0.031f, 1f);   // #1E1208
-    public Color lightColor = new Color(0.784f, 0.663f, 0.431f, 0.05f); // #C8A96E
+    public Color darkColor  = new Color(0.118f, 0.071f, 0.031f, 1f);   
+    public Color lightColor = new Color(0.784f, 0.663f, 0.431f, 0.05f); 
 
     [Header("Dimensione quadretti (pixel)")]
     public int tileSize = 40;

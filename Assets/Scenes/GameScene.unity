@@ -1258,7 +1258,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &565877297
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1971,7 +1971,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 246, y: -627}
+  m_AnchoredPosition: {x: 231, y: -627}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &909674033
@@ -2197,8 +2197,7 @@ MonoBehaviour:
   moveSoundOpponent: {fileID: 8300000, guid: b42ac61107c5b1c4bae432f5ac30516d, type: 3}
   captureSound: {fileID: 8300000, guid: f40540682aa9db04085d61bd5441aaa8, type: 3}
   illegalSound: {fileID: 8300000, guid: 721c09a8d4bd9a84d8898526f88b93a4, type: 3}
-  handOpenSprite: {fileID: 72432134279239116, guid: faf2fb245ca71e3468318c9e97f5c5a6, type: 3}
-  handGrabSprite: {fileID: -5357678764854131555, guid: 119cf0fcd105b7342bf720c353cb65ab, type: 3}
+  handGrabSprite: {fileID: -3777569201786988421, guid: 5b37d1b43f4961a499b12794107f7f49, type: 3}
   squareSize: 1
   puzzleManager: {fileID: 2120262630}
   blackAtBottom: 0
@@ -3232,6 +3231,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1514825243}
   - component: {fileID: 1514825242}
+  - component: {fileID: 1514825244}
   m_Layer: 0
   m_Name: MusicManager
   m_TagString: Untagged
@@ -3250,7 +3250,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
-  m_Resource: {fileID: 0}
+  m_Resource: {fileID: 8300000, guid: ac704bd9745f1e24c90ec9a265e802ca, type: 3}
   m_PlayOnAwake: 1
   m_Volume: 0.3
   m_Pitch: 1
@@ -3351,6 +3351,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1514825244
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1514825241}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 160705f841ae7964cbeff450bc16912c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MusicManager
 --- !u!1 &1537094332
 GameObject:
   m_ObjectHideFlags: 0
@@ -3379,15 +3391,15 @@ RectTransform:
   m_GameObject: {fileID: 1537094332}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.91517, y: 0.91517, z: 0.91517}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1802736984}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 657}
-  m_SizeDelta: {x: 980, y: 120}
+  m_AnchoredPosition: {x: 30.850487, y: 657}
+  m_SizeDelta: {x: 756.0332, y: 120}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1537094334
 MonoBehaviour:
@@ -3445,7 +3457,7 @@ MonoBehaviour:
     m_Top: 0
     m_Bottom: 0
   m_ChildAlignment: 0
-  m_Spacing: 13
+  m_Spacing: 12
   m_ChildForceExpandWidth: 0
   m_ChildForceExpandHeight: 0
   m_ChildControlWidth: 1
@@ -3495,7 +3507,7 @@ MonoBehaviour:
   historyPanel: {fileID: 1537094333}
   historyCorrect: {fileID: 4048905553133433515, guid: 6540a76189dd1c6418c7fa2e093e5f9e, type: 3}
   historyWrong: {fileID: 7575186650473386383, guid: a000803129d31f94886dfc30dff615ba, type: 3}
-  maxHistoryItems: 13
+  maxHistoryItems: 10
   gameOverPanel: {fileID: 565877296}
   finalScoreText: {fileID: 1614793472}
   restartButton: {fileID: 1374360972}

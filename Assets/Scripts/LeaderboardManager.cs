@@ -4,10 +4,7 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
 
-/// <summary>
-/// Gestisce la leaderboard nel pannello Game Over.
-/// Attacca questo script a GameOverPanel nella GameScene.
-/// </summary>
+
 public class LeaderboardManager : MonoBehaviour
 {
     [Header("UI Game Over")]
@@ -28,11 +25,7 @@ public class LeaderboardManager : MonoBehaviour
     private const string GAME_SCENE = "GameScene";
     private const string MENU_SCENE = "MainMenu";
 
-    void Start()
-    {
-        if (restartButton != null) restartButton.onClick.AddListener(OnRestart);
-        if (menuButton    != null) menuButton.onClick.AddListener(OnMenu);
-    }
+   
 
     
     public void Show(int score)
@@ -46,7 +39,7 @@ public class LeaderboardManager : MonoBehaviour
     {
         if (leaderboardContainer == null) return;
 
-        // Pulisci righe precedenti
+   
         foreach (Transform child in leaderboardContainer)
             Destroy(child.gameObject);
 
@@ -58,7 +51,7 @@ public class LeaderboardManager : MonoBehaviour
             var (name, score) = leaderboard[i];
             bool isCurrentPlayer = name == currentPlayer;
 
-            // Crea riga
+           
             GameObject row = CreateRow(i + 1, name, score, isCurrentPlayer);
             row.transform.SetParent(leaderboardContainer, false);
         }
@@ -125,13 +118,4 @@ public class LeaderboardManager : MonoBehaviour
         le.flexibleWidth   = 0;
     }
 
-    void OnRestart()
-    {
-        SceneManager.LoadScene(GAME_SCENE);
-    }
-
-    void OnMenu()
-    {
-        SceneManager.LoadScene(MENU_SCENE);
-    }
 }

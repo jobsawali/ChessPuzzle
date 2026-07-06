@@ -371,6 +371,11 @@ public class PuzzleManager : MonoBehaviour
             forwardButton.interactable = (historyPointer < moveHistory.Count);
     }
 
+    void OnDestroy()
+    {
+        CancelInvoke();
+    }
+
 
 
 }

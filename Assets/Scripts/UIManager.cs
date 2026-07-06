@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -30,7 +31,7 @@ public class UIManager : MonoBehaviour
     public Transform historyPanel;
     public Sprite historyCorrect;  
     public Sprite historyWrong;       
-    public int maxHistoryItems = 13;
+    public int maxHistoryItems = 11;
 
     [Header("Game Over Panel")]
     public GameObject gameOverPanel;
@@ -129,8 +130,6 @@ public class UIManager : MonoBehaviour
 
     public void AddHistoryItem(bool correct, int elo)
     {
-        
-       
         if (historyItems.Count >= maxHistoryItems)
         {
             Image oldest = historyItems[0];
@@ -138,24 +137,21 @@ public class UIManager : MonoBehaviour
             Destroy(oldest.gameObject.transform.parent.gameObject);
         }
 
-        
         GameObject container = new GameObject("HistoryContainer");
-        container.transform.SetParent(historyPanel);
+        container.transform.SetParent(historyPanel, false);
 
         RectTransform containerRt = container.AddComponent<RectTransform>();
-        containerRt.sizeDelta = new Vector2(40f, 55f);
+        containerRt.sizeDelta = new Vector2(45f, 55f);
 
-        
-        UnityEngine.UI.VerticalLayoutGroup vlg = container.AddComponent<UnityEngine.UI.VerticalLayoutGroup>();
+        VerticalLayoutGroup vlg = container.AddComponent<VerticalLayoutGroup>();
         vlg.childAlignment = TextAnchor.UpperCenter;
         vlg.spacing = 2f;
         vlg.padding = new RectOffset(2, 2, 2, 2);
         vlg.childForceExpandWidth = false;
         vlg.childForceExpandHeight = false;
 
-        
         GameObject item = new GameObject("HistoryItem");
-        item.transform.SetParent(container.transform);
+        item.transform.SetParent(container.transform, false);
 
         Image img = item.AddComponent<Image>();
         img.sprite = correct ? historyCorrect : historyWrong;
@@ -166,9 +162,8 @@ public class UIManager : MonoBehaviour
 
         historyItems.Add(img);
 
-        
         GameObject eloObj = new GameObject("EloText");
-        eloObj.transform.SetParent(container.transform);
+        eloObj.transform.SetParent(container.transform, false);
 
         TMPro.TextMeshProUGUI tmp = eloObj.AddComponent<TMPro.TextMeshProUGUI>();
         tmp.text = elo.ToString();
@@ -177,7 +172,7 @@ public class UIManager : MonoBehaviour
         tmp.color = correct ? new Color(0.471f, 0.624f, 0.247f) : new Color(0.769f, 0.180f, 0.161f);
 
         RectTransform eloRt = eloObj.GetComponent<RectTransform>();
-        eloRt.sizeDelta = new Vector2(40f, 16f);
+        eloRt.sizeDelta = new Vector2(50f, 30f);
     }
 
 
